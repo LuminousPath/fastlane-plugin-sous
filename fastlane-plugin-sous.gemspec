@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.author        = 'Jonathan Nogueira'
 
   spec.summary       = 'A tool to help create and sync keystores, as well as sign apks and aabs for the play store'
-  spec.homepage      = "https://github.com/<GITHUB_USERNAME>/fastlane-plugin-sous"
+  spec.homepage      = "https://github.com/LuminousPath/fastlane-plugin-sous"
   spec.license       = "MIT"
 
   spec.files         = Dir["lib/**/*"] + %w(README.md LICENSE)
