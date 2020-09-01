@@ -22,7 +22,7 @@ module Fastlane
           alias_password: alias_password,
           zip_align: zip_align)
 
-        Actions.lane_context[SharedValues::KEYSTORE_PATH] = apk_path
+        Actions.lane_context[SharedValues::SIGNED_APK_PATH}] = apk_path
 
         apk_path
       end
