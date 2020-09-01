@@ -1,3 +1,4 @@
+
 ## Based strongly on the work done at https://github.com/christopherney/fastlane-plugin-match_keystore/blob/master/lib/fastlane/plugin/match_keystore/actions/match_keystore_action.rb
 
 require 'digest'
@@ -16,9 +17,7 @@ module Fastlane
         git_url = params[:git_url]
         git_branch = params[:git_branch]
         package_name = params[:package_name]
-        existing_keystore = params[:existing_keystore]
         match_secret = params[:match_secret]
-        keystore_data = params[:keystore_data]
 
         # constants:
         keystore_name = package_name + ".jks"
@@ -50,14 +49,14 @@ module Fastlane
           if security_password.to_s.strip.empty?
             raise "Security password is not defined! Please use 'match_secret' parameter"
           end
-          UI.message "Generating security key '#{key_name}'..."
+          UI.message("Generating security key '#{key_name}'...")
           self.gen_key(key_path, security_password)
         end
 
         # check if password is well initialized
         tmpkey = self.get_file_content(key_path).strip
         if tmpkey.length == 128
-          UI.message "Security key '#{key_name}' initialized"
+          UI.message("Security key '#{key_name}' initialized")
         else
           raise "The security key '#{key_name}' is malformed, or not initialized!"
         end
@@ -71,8 +70,8 @@ module Fastlane
         end
 
         # cloning/pulling git remote repo
-        gitDir = File.join(repo_dir, '/.git')
-        if !File.directory?(gitDir)
+        git_dir = File.join(repo_dir, '/.git')
+        if !File.directory?(git_dir)
           UI.message("Cloning remote Keystores repository...")
           self.git_clone(git_url, git_branch, self.to_md5(git_url), dir_name)
         else
@@ -84,11 +83,11 @@ module Fastlane
         if package_name.to_s.strip.empty?
           raise "Package name is not defined!"
         end
-        keystoreAppDir = File.join(repo_dir, "android")
-        keystore_path = File.join(keystoreAppDir, keystore_name)
-        keystore_encrypt_path = File.join(keystoreAppDir, keystore_encrypt_name)
+        keystore_app_dir = File.join(repo_dir, "android")
+        keystore_path = File.join(keystore_app_dir, keystore_name)
+        keystore_encrypt_path = File.join(keystore_app_dir, keystore_encrypt_name)
 
-        unless File.file?(keystore_encrypt_path)
+        if !File.file?(keystore_encrypt_path)
           raise "Cannot find encrypted keystore at path: #{keystore_encrypt_path}. Please make sure you have run `prep` at least once and that the keystore is uploaded to your store."
         else
           self.decrypt_file(keystore_encrypt_path, keystore_path, key_path)
@@ -96,29 +95,28 @@ module Fastlane
 
         Actions.lane_context[SharedValues::KEYSTORE_PATH] = keystore_path
 
-        keystore_path        
-        
+        keystore_path
       end
 
       def self.git_clone(git_url, git_branch, repo_name, repo_dir)
-        Git.clone(git_url, repo_name, :path => repo_dir, :branch => git_branch)
+        Git.clone(git_url, repo_name, path: repo_dir, branch: git_branch)
       end
 
       def self.git_pull(repo_dir, git_branch)
         g = Git.open(repo_dir)
         g.fetch
-        g.checkout("origin/" + git_branch, :force => true)
+        g.checkout("origin/" + git_branch, force: true)
         g.pull("origin", git_branch)
-      end 
+      end
 
       def self.to_md5(value)
-        hash_value = Digest::MD5.hexdigest value
+        hash_value = Digest::MD5.hexdigest(value)
         hash_value
       end
 
       def self.check_openssl_version
         output = `openssl version`
-        if !output.start_with?("OpenSSL")
+        unless output.start_with?("OpenSSL")
           raise "Please install OpenSSL at least version 1.1.1 https://www.openssl.org/"
         end
         UI.message("OpenSSL v
@@ -164,7 +162,7 @@ module Fastlane
                                        description: "URL to the git repo containing the android secrets",
                                        is_string: true,
                                        verify_block: proc do |value|
-                                          UI.user_error!("No Android Secrets Git Url given, pass using `git_url: 'url_location'`") unless (value and not value.empty?)
+                                         UI.user_error!("No Android Secrets Git Url given, pass using `git_url: 'url_location'`") unless value && !value.empty?
                                        end),
           FastlaneCore::ConfigItem.new(key: :git_branch,
                                        env_name: "SOUS_GIT_BRANCH",
@@ -181,7 +179,7 @@ module Fastlane
                                        description: "The package name of the App",
                                        is_string: true,
                                        verify_block: proc do |value|
-                                          UI.user_error!("No Android Package Name given, pass using `package_name: 'package_name'`") unless (value and not value.empty?)
+                                         UI.user_error!("No Android Package Name given, pass using `package_name: 'package_name'`") unless value && !value.empty?
                                        end),
           FastlaneCore::ConfigItem.new(key: :existing_keystore,
                                        env_name: "SOUS_KEYSTORE",

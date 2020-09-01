@@ -1,3 +1,4 @@
+
 module Fastlane
   module Actions
     module SharedValues
@@ -13,23 +14,23 @@ module Fastlane
         alias_password = params[:alias_password]
         zip_align = params[:zip_align]
 
-        UI.message "Signing APK #{apk_path}..."
+        UI.message("Signing APK #{apk_path}...")
         apk_path = self.sign_apk(
           apk_path: apk_path,
           keystore_path: keystore_path,
           key_password: key_password,
           alias_name: alias_name,
           alias_password: alias_password,
-          zip_align: zip_align)
+          zip_align: zip_align
+        )
 
-        Actions.lane_context[SharedValues::SIGNED_APK_PATH}] = apk_path
+        Actions.lane_context[SharedValues::SIGNED_APK_PATH] = apk_path
 
         apk_path
       end
 
       def self.sign_apk(apk_path:, keystore_path:, key_password:, alias_name:, alias_password:, zip_align:)
-
-        build_tools_path = self.get_build_tools()
+        build_tools_path = self.get_build_tools
 
         # https://developer.android.com/studio/command-line/zipalign
         if zip_align == true
@@ -41,6 +42,7 @@ module Fastlane
         else
           apk_path_aligned = apk_path
         end
+
         apk_path_signed = apk_path.gsub(".apk", "-signed.apk")
         apk_path_signed = apk_path_signed.gsub("unsigned", "")
         apk_path_signed = apk_path_signed.gsub("--", "-")
@@ -49,9 +51,11 @@ module Fastlane
         if File.exist?(apk_path_signed)
           File.delete(apk_path_signed)
         end
+
         sh("#{build_tools_path}apksigner sign --ks \"#{keystore_path}\" --ks-pass pass:\"#{key_password}\" --v1-signing-enabled true --v2-signing-enabled true --out \"#{apk_path_signed}\" \"#{apk_path_aligned}\"")
-        
+
         sh("#{build_tools_path}apksigner verify \"#{apk_path_signed}\"")
+
         if File.exist?(apk_path_aligned)
           File.delete(apk_path_aligned)
         end
@@ -65,7 +69,7 @@ module Fastlane
 
         sub_dirs = Dir.glob(File.join(build_tools_root, '*', ''))
         build_tools_last_version = ''
-        for sub_dir in sub_dirs
+        sub_dirs.each do |sub_dir|
           build_tools_last_version = sub_dir
         end
 
@@ -79,21 +83,21 @@ module Fastlane
                                        description: "Path to the APK File",
                                        is_string: true,
                                        verify_block: proc do |value|
-                                          UI.user_error!("No APK Path given, pass using `apk_path: 'path to apk'`") unless (value and not value.empty?)
+                                         UI.user_error!("No APK Path given, pass using `apk_path: 'path to apk'`") unless value && !value.empty?
                                        end),
           FastlaneCore::ConfigItem.new(key: :keystore_path,
                                        env_name: "SOUS_KEYSTORE_PATH",
                                        description: "Path to the Keystore file to sign APKs",
                                        is_string: true,
                                        verify_block: proc do |value|
-                                          UI.user_error!("Keystore path is not present, pass using `keystore_path: 'path to keystore'`") unless (value and not value.empty?)
+                                         UI.user_error!("Keystore path is not present, pass using `keystore_path: 'path to keystore'`") unless value && !value.empty?
                                        end),
           FastlaneCore::ConfigItem.new(key: :key_password,
                                        env_name: "SOUS_KEY_PASSWORD",
                                        description: "Signing Keystore password",
                                        is_string: true,
                                        verify_block: proc do |value|
-                                          UI.user_error!("No Keystore password given, pass using `key_password: 'password'`") unless (value and not value.empty?)
+                                         UI.user_error!("No Keystore password given, pass using `key_password: 'password'`") unless value && !value.empty?
                                        end),
           FastlaneCore::ConfigItem.new(key: :alias_name,
                                        env_name: "SOUS_ALIAS_NAME",
