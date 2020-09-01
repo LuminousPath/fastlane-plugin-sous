@@ -1,0 +1,11 @@
+lane :test do
+  pass(
+      package_name: "co.app.test",
+      git_url: "path_to_keystore",
+      git_branch: "master"
+    )
+
+  plate(
+    keystore_path: "example-keystore-path", 
+    apk_path: "example-apk-path")
+end
